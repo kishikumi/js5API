@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ストレス度分析アプリ</title>
+    <link rel="stylesheet" href="css/map.css">
+</head>
+
+ <body>
+        <h1>ストレス度分析アプリ</h1>
+        <p>音声入力を開始して、ストレス度を確認しましょう。</p>
+        <button id="start">音声入力開始</button>
+        <button id="stop" disabled>音声入力停止</button>
+        <p id="transcription">音声の内容: <span id="textResult"></span></p>
+        <p id="stressLevel">ストレス度: <span id="stressResult"></span></p>
+        <div id="characterContainer" style="display:none; text-align: center;">
+            <p>ストレス度が高いようです。リラックスしましょう！</p>
+            <img id="characterImage" src="心配アヒル.png" alt="キャラクター" style="width: 300px; height: auto;">
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+        <script>
+            
+            // 音声認識を使用するための設定
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+    
+            // 日本語で音声認識を行う
+            recognition.lang = 'ja-JP';
+            recognition.interimResults = false; // 確定した結果のみ取得
+    
+            // ボタン要素の取得
+            const startBtn = document.getElementById("start");
+            const stopBtn = document.getElementById("stop");
+    
+            // 音声認識の開始
+            startBtn.addEventListener("click", function () {
+                document.getElementById("textResult").textContent = ""; // 前回の結果をクリア
+                document.getElementById("stressResult").textContent = ""; // 前回のストレス度をクリア
+                document.getElementById("characterContainer").style.display = "none"; // キャラクターを非表示
+                recognition.start(); // 音声認識を開始
+                startBtn.disabled = true; // 開始ボタンを無効化
+                stopBtn.disabled = false; // 停止ボタンを有効化
+            });
+    
+            // 音声認識の停止
+            stopBtn.addEventListener("click", function () {
+                recognition.stop(); // 音声認識を停止
+                startBtn.disabled = false; // 開始ボタンを有効化
+                stopBtn.disabled = true; // 停止ボタンを無効化
+            });
+    
+            // 音声認識が成功した場合
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript; // 認識されたテキスト
+                document.getElementById("textResult").textContent = transcript; // 結果を表示
+                analyzeSentiment(transcript); // 感情分析APIに送信
+            };
+    
+            // 音声認識中にエラーが発生した場合
+            recognition.onerror = function (event) {
+                alert("音声認識に失敗しました: " + event.error);
+            };
+    
+            // 感情分析APIと連携
+                function analyzeSentiment(transcript) {
+                    const apiUrl = "https://language.googleapis.com/v1/documents:analyzeSentiment";
+                    const apiKey = "AIzaSyCCXtHtJI1huZSzJuOqQ4k-sXqy6X_msxs"; // 本番環境では秘密にする
+                    const requestData = {
+                         document: {
+                         type: "PLAIN_TEXT",
+                         language: "ja",
+                         content: transcript
+                        },
+                         encodingType: "UTF8"
+                };
+
+                // APIにデータを送信
+                $.ajax({
+                    url: `${apiUrl}?key=${apiKey}`,
+                    type: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    data: JSON.stringify(requestData),
+                    success: function (response) {
+                        console.log("APIレスポンス", response)
+
+                        const score = response.documentSentiment.score;
+                        const magnitude = response.documentSentiment.magnitude;
+                        // APIの結果からストレス度を表示
+                        const stressLevel = Math.round((1 - response.documentSentiment.score) * 50 + response.documentSentiment.magnitude * 50);
+                       // 結果を画面に表示
+                        document.getElementById("stressResult").textContent = `${stressLevel}%`;
+                   
+                   // ストレス度が100を超えた場合にキャラクターを表示
+                   if (stressLevel > 80) {
+                        document.getElementById("characterContainer").style.display = "block";
+                    }
+                                    
+                    },
+
+                    error: function (xhr, status, error) {
+                        console.error("API通信エラー:", error, xhr.responseJSON);
+                        alert("感情分析APIとの通信に失敗しました: " + error);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
+    

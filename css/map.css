@@ -1,0 +1,80 @@
+/* ベーススタイル */
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #fff4f7; /* 優しいピンク色 */
+  color: #333;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+/* ヘッダー */
+h1 {
+  font-size: 2rem;
+  color: #ff6699; /* 明るいピンク色 */
+  margin-top: 20px;
+}
+
+/* 説明文 */
+p {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* ボタンのスタイル */
+button {
+  background-color: #ff99cc; /* 明るいピンク */
+  color: white;
+  border: none;
+  border-radius: 20px; /* 丸みを追加 */
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff80b3; /* 少し濃いピンクに */
+}
+
+/* 音声の結果表示部分 */
+#transcription, #stressLevel {
+  background-color: #fff;
+  border: 1px solid #ffd1dc; /* 薄いピンクの枠線 */
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px auto;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+  color: #333;
+}
+
+/* 強調部分 */
+#textResult, #stressResult {
+  font-weight: bold;
+  color: #ff3366; /* 濃いピンク */
+}
+
+/* スムーズなアニメーション効果 */
+button, #transcription, #stressLevel {
+  transition: all 0.3s ease;
+}
+
+/* モバイル対応 */
+@media (max-width: 600px) {
+  h1 {
+      font-size: 1.5rem;
+  }
+
+  button {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+  }
+
+  #transcription, #stressLevel {
+      font-size: 0.9rem;
+  }
+}
